@@ -1,0 +1,39 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+}
+
+$length: 2900px;
+$stepCount: 29;
+
+$stepLen: $length / $stepCount;
+
+@keyframes brust-heart {
+	0%{
+		background-position: 0 0; 
+	}
+
+	100%{
+		background-position: ($stepLen - $length)  0; 
+	}
+}
+
+.heart {
+	width: 100px;
+	height: 100px;
+	cursor: pointer;
+	margin: 100px auto;
+	background-image: url(./heart.png);
+	background-position: 0 0;
+}
+
+.brust-heart {
+	animation: brust-heart .8s steps($stepCount - 1, end); 
+}
