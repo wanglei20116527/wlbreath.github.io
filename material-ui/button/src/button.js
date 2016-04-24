@@ -4,29 +4,74 @@ import ReactTransitionGroup from 'react-addons-transition-group';
 
 import CircleRipple from './circle-ripple';
 
+const DefaultButtonStyle = {
+	position: 'relative',
+	display: 'inline-block',
+	padding: '0 16px',
+	height: '36px',
+	lineHeight: '36px',
+	overflow: 'hidden',
+	fontSize: '14px',
+	outline: 'none',
+	border: 0,
+	cursor: 'pointer',
+	textAlign: 'center',
+	background: '#ffffff',
+	boxShadow: '0 0 6px 0 #C3B7B7',
+};
+
+const DefaultTransitionGroupStyle= {
+	display: 'block',
+	position: 'absolute',
+	top: 0,
+	left: 0,
+	width: '100%',	
+	height: '100%',
+};
+
+const DefaultLabelStyle = {
+	position: 'relative',
+	background: 'transparent',
+};
+
+let uuid = 0;
+
 class Button extends React.Component {
 	constructor(props){
 		super(props);
 
 		this.state = {
-			uuid: 0,
 			ripples: []
 		};
+
+		[
+			'_handleClick',
+			'_removeRipple',
+			'_getCircleRipplePosition',
+			'_getBtnStyle',
+			'_getTransitonGroupStyle',
+			'_getLabelStyle',
+
+		].forEach(func => {
+			this[func] = this[func].bind(this);
+		});
 	}
 
 	_handleClick(e){
-		let uuid = this.state.uuid;
+		this.props.onClick && this.props.onClick(e);
 		let ripples = this.state.ripples;
 		
-		let style = this._getCircleRippleStyle(e);
+		let position = this._getCircleRipplePosition(e);
 
 		let newRipple = (
-			<CircleRipple key={uuid} {...style} onAnimationEnd={ e=>{ this._removeRipple(newRipple); } }/>
+			<CircleRipple 
+			   key={uuid++} 
+			   {...position} 
+			   onAnimationEnd={ () =>{ this._removeRipple(newRipple); } } />
 		);
 
 		ripples.push(newRipple);
 		this.setState({
-			uuid: ++uuid,
 			ripples: ripples
 		});
 	}
@@ -46,7 +91,7 @@ class Button extends React.Component {
 		});
 	}
 
-	_getCircleRippleStyle(e){
+	_getCircleRipplePosition(e){
 		let el = ReactDOM.findDOMNode(this);
 		let rect = el.getBoundingClientRect();
 
@@ -54,49 +99,41 @@ class Button extends React.Component {
 			top: e.pageY - (rect.top + window.scrollY),
 			left: e.pageX - (rect.left + window.scrollX)
 		};
+	}
+
+	_getBtnStyle(){
+		return Object.assign({}, DefaultButtonStyle, this.props.style);
+	}
+
+	_getTransitonGroupStyle(){
+		return Object.assign({}, DefaultTransitionGroupStyle);
 	}	
 
+	_getLabelStyle(){
+		return Object.assign({}, DefaultLabelStyle, this.props.labelStyle);
+	}
+
 	render(){
-		let buttonStyle = Object.assign({
-			position: 'relative',
-			display: 'block',
-			background: '#ffffff',
-			outline: 'none',
-			border: 'none',
-			padding: '0 16px',
-			height: '36px',
-			lineHeight: '36px',
-			textAlign: "center",
-			cursor: "pointer",
-			overflow: 'hidden',
-			fontSize: '14px',
-			boxShadow: '0 0 6px rgba(0, 0, 0, .3)'
+		let {
+			className,
 
-		}, this.props.style || {});
-
-		let labelStyle = {
-			position: 'relative',
-			background: 'transparent'
-		};
-
-		let transitionGroupStyle = {
-			display: 'block',
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			width: '100%',
-			height: '100%'
-		};
+		} = this.props;
 
 		return (
-			<button style={buttonStyle} 
-					onClick={ (e) => { this._handleClick(e); } }>
+			<button
+			   className={className}
+			   style={this._getBtnStyle()}
+			   onClick={ this._handleClick }>
 				
-				<ReactTransitionGroup style={transitionGroupStyle}>
-					{this.state.ripples}
-				</ReactTransitionGroup>
+			   <ReactTransitionGroup 
+			      style={this._getTransitonGroupStyle()}>
+			      {this.state.ripples}
+			   </ReactTransitionGroup>
 				
-				<span style={labelStyle}>{this.props.label}</span>
+			   <span
+			      style={this._getLabelStyle()}>
+			      {this.props.label || ''}
+			   </span>
 			
 			</button>
 		);
@@ -104,12 +141,16 @@ class Button extends React.Component {
 }
 
 Button.defaultProps = {
-	label: ""
+	label: "",
+	style: {},
+	labelStyle: {},
 };
 
 Button.propTypes = {
 	label: React.PropTypes.string,
-	style: React.PropTypes.object
+	onClick: React.PropTypes.func,
+	style: React.PropTypes.object,
+	labelStyle: React.PropTypes.object,
 };
 
 export default Button;

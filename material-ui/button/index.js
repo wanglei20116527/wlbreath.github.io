@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Button from "./src/button";
+import Button from "./lib/button";
 
 ReactDOM.render(
-	<Button label="HOUNA"/>,
-	document.getElementById('app')
+	<Button label="BUTTON"/>,
+	document.getElementById("app")
 );
